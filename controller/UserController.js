@@ -1,3 +1,4 @@
+const User = require('../models/User')
 const userController = {
   userList: [
     {
@@ -12,27 +13,50 @@ const userController = {
     }
   ],
   lastId: 3,
-  addUser (user) {
-    user.id = this.lastId++
-    this.userList.push(user)
-    return user
+  async addUser (req, res, next) {
+    const payload = req.body
+    const user = new User(payload)
+    try {
+      await user.save()
+      res.json(user)
+    } catch (err) {
+      res.status(500).send(err)
+    }
   },
-  updateUser (user) {
-    const index = this.userList.findIndex(item => item.id === user.id)
-    this.userList.splice(index, 1, user)
-    return user
+  async updateUser (req, res, next) {
+    const payload = req.body
+    try {
+      const user = await User.updateOne({ _id: payload._id }, payload)
+      res.json(user)
+    } catch (err) {
+      res.status(500).send(err)
+    }
   },
-  deleteUser (id) {
-    const index = this.userList.findIndex(item => item.id === parseInt(id))
-    this.userList.splice(index, 1)
-    return { id }
+  async deleteUser (req, res, next) {
+    try {
+      const user = await User.updateOne({ _id: req.body._id }, payload)
+      res.json(user)
+    } catch (err) {
+      res.status(500).send(err)
+    }
   },
-  getUsers () {
-    return [...this.userList]
+  async getUsers (req, res, next) {
+    try {
+      const users = await User.find({})
+      res.json(users)
+    } catch (err) {
+      res.status(500).send(err)
+    }
   },
-  getUser (id) {
-    const index = this.userList.find(user => user.id === parseInt(id))
-    return index
+  getUser (req, res, next) {
+    const { id } = req.params
+    User.findById(id)
+      .then(user => {
+        res.json(user)
+      })
+      .catch(error => {
+        res.status(500).send(error)
+      })
   }
 }
 
